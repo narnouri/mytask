@@ -1,0 +1,234 @@
+<!--
+  
+HTML/HTML5, CSS, JavaScript, jQuery 
+--------------------------
+Copyright 2014 Nour Kayali
+  
+-->
+<!DOCTYPE html>
+<!--
+maintain screen that has add email/city and send email tab
+-->
+<html>
+    <head>
+        <title>Welcome to MyTask</title>
+        <meta charset="UTF-8">
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+        <meta name="viewport" content="height=device-height,width=device-width,initial-scale=1.0,maximum-scale=1.0" >
+        <link rel="stylesheet" href="themes/Nour.min.css" />
+        <link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile.structure-1.4.2.min.css" />
+        <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+        <script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+        <script src='http://malsup.github.io/jquery.blockUI.js'></script>
+        <script src="js/newjavascript.js"></script>
+        <!-- CSS -->
+        <style>
+            .ui-helper-hidden-accessible {
+                display: none;
+            }
+            .email{
+                width: 85% !important;
+            }
+            .addEmail{
+                width: 15% !important;
+            }
+            .city{
+                width: 85% !important;
+            }
+            .addCity{
+                width: 15% !important;
+            }
+
+            h3, p {
+                font-size: 0.90em;
+                color: grey;
+            }
+            #sendButton {
+                width: 100px !important;
+                height: 100px !important;
+                border-radius: 50% !important;
+                background-color: #9ab896;
+                color: white;
+            }
+            body .ui-autocomplete {
+                background-color: #f0ebd2;
+                float: left;
+                cursor: pointer;
+                border: 1px solid #8c8c8c !important;
+                position: absolute;
+                width: 80%;
+            }
+        </style>
+    </head>
+    <!-- call functions when the page loads-->
+    <body onload="readEmailsList(), readCitiesList(), readPercentage()">
+        <div data-role="page" data-theme="b">
+            <div data-role="tabs" id="tabs">
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#tabOne" class="ui-btn-active">Add Email/City</a></li>
+                        <li><a href="#tabTwo" id="nav2">Send Email</a></li>
+                    </ul>
+                </div>
+                <div data-role="content">
+                    <div id="tabOne">
+                        <div class="ui-grid-a">
+                            <p align="left"> Enter a valid email address, then press 
+                                <span> <img src='themes/images/icons-png/plus-white.png'> </span> on the right.</p>
+                            <div class="ui-block-a email" align="center">
+                                <input type="email" id="email" placeholder="Email Address" data-clear-btn="true"></div>
+                            <div class="ui-block-b addEmail" align="center">
+                                <button type="submit" id="addEmailButton" onclick="addEmail()"
+                                        class="ui-btn ui-shadow ui-corner-all ui-btn-icon-right ui-icon-plus ui-btn-icon-notext">Add Email</button></div>
+                            <!-- JavaScript/jQuery -->
+                            <script>
+                                $(function() {
+                                    // return to login page if the user is not comming for the login page
+                                    if (document.referrer == "") {
+                                        window.location = serverAddr + '/mytask/index.html';
+                                    }
+                                    // email address validation
+                                    function isValidEmailAddress(emailAddress) {
+                                        var pattern = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/i);
+                                        return pattern.test(emailAddress);
+                                    }
+                                    ;
+                                    // enable add email button only when typing a valid email address
+                                    $('#addEmailButton').attr('disabled', true);
+                                    $('#email').keyup(function(event) {
+                                        if (isValidEmailAddress($('#email').val())) {
+                                            $('#addEmailButton').attr('disabled', false);
+                                            // 'enter/return' button handeling
+                                            if (event.keyCode == 13) {
+                                                $('#addEmailButton').focus();
+                                                $('#addEmailButton').click();
+                                            }
+                                        }
+                                        else {
+                                            $('#addEmailButton').attr('disabled', true);
+                                        }
+                                    });
+                                });
+                            </script>
+                        </div>
+                        <div class="ui-grid-a">
+                            <p align="left"> Search for a city, or 'Use Current Location', then press <span> <img src='themes/images/icons-png/plus-white.png'> </span>on the right. </p>
+                            <div class="ui-block-a city" align="center">
+                                <input type="search" id="city" placeholder="Search City" data-clear-btn="true"/></div>
+                            <!-- JavaScript/jQuery -->
+                            <script>
+                                $(function() {
+                                    // enable add city button only when choosing a valid city
+                                    $('#addCityButton').attr('disabled', true);
+                                    $('.ui-content').on('click', '.ui-input-clear', function(e) {
+                                        $('#addCityButton').attr('disabled', true);
+                                    });
+                                    $('#city').keyup(function(event) {
+                                        $('#addCityButton').attr('disabled', true);
+                                    });
+                                    // using geonames for city auto-complete
+                                    $("#city").autocomplete({
+                                        source: function(request, response) {
+                                            $.ajax({
+                                                url: "http://ws.geonames.org/searchJSON?username=narnouri&country=",
+                                                dataType: "jsonp",
+                                                data: {
+                                                    featureClass: "P",
+                                                    style: "FULL",
+                                                    maxRows: 10,
+                                                    name_startsWith: request.term
+                                                },
+                                                success: function(data) {
+                                                    response($.map(data.geonames, function(item) {
+                                                        return {
+                                                            label: item.name + (item.adminName1 ? ", " + item.adminName1 : "") + ", " + item.countryName,
+                                                            value: item.name + (item.adminName1 ? ", " + item.adminName1 : "") + ", " + item.countryName +
+                                                                    " (lat: " + item.lat + " lng: " + item.lng + ")"
+                                                        }
+                                                    }));
+                                                }
+                                            });
+                                        },
+                                        // enable add  city button when selecting a valid city
+                                        select: function(event, ui) {
+                                            $('#addCityButton').attr('disabled', false);
+                                        }
+                                    });
+                                });</script>
+                            <div class="ui-block-b addCity" align="center">
+                                <button type="submit" id="addCityButton" onclick="addCity()"
+                                        class="ui-btn ui-shadow ui-corner-all ui-btn-icon-right ui-icon-plus ui-btn-icon-notext">Add City</button></div>
+                        </div>
+                        <h3 align="center"> ------------------ or ------------------ </h3>
+                        <button type="submit" id="currentLocation" onclick="getCurrentLocation()" 
+                                class="ui-btn ui-shadow ui-corner-all ui-btn-icon-right ui-icon-navigation">Use Current Location</button>
+                        <p align="left"> Location Services must be enabled to locate your current city. </p>
+                    </div>
+                    <div id="tabTwo">
+                        <select id="emailsList"> <option selected="">Select Email</option></select>
+                        <br/>
+                        <select id="citiesList"> <option selected="">Select City</option></select>
+                        <br/>
+                        <h3 align="center"> Percentage (%) </h3>
+                        <input type="number" data-type="range" name="percentage" id="percentage" 
+                               min="0" max="100" step="1" value="" 
+                               class="ui-input-text ui-body-c ui-corner-all ui-shadow-inset ui-slider-input" readonly>
+                        <!-- JavaScript/jQuery -->
+                        <script>
+                            $(function() {
+                                $('#sendButton').attr('disabled', true);
+                                $("#nav2").on('click', function() {
+                                    // reload
+                                    $('#emailsList').html('');
+                                    $('#citiesList').html('');
+                                    readEmailsList();
+                                    readCitiesList();
+                                    readPercentage();
+                                });
+                                // save percentage
+                                $('#percentage').slider({
+                                    stop: function() {
+                                        savePercentage();
+                                    }
+                                });
+                            });
+                            //enable send button only when email address and city are provided
+                            $("#emailsList").change(function() {
+                                if ($('#emailsList option:selected').val() == "Select Email") {
+                                    $('#sendButton').attr('disabled', true);
+                                }
+                                else {
+                                    if ($('#citiesList option:selected').val() == "Select City") {
+                                        $('#sendButton').attr('disabled', true);
+                                    }
+                                    else {
+                                        $('#sendButton').attr('disabled', false);
+                                    }
+                                }
+                            });
+                            $("#citiesList").change(function() {
+                                if ($('#citiesList option:selected').val() == "Select City") {
+                                    $('#sendButton').attr('disabled', true);
+                                }
+                                else {
+                                    if ($('#emailsList option:selected').val() == "Select Email") {
+                                        $('#sendButton').attr('disabled', true);
+                                    }
+                                    else {
+                                        $('#sendButton').attr('disabled', false);
+                                    }
+                                }
+                            });
+                        </script>
+                        <br/>
+                        <div align="center"><button type="submit" id="sendButton" onclick="sendEmail()" 
+                                                    class="ui-btn ui-shadow ui-corner-all ui-btn-icon-bottom ui-icon-mail "> Send </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

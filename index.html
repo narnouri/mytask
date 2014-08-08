@@ -1,0 +1,141 @@
+<!--
+  
+HTML/HTML5, CSS, JavaScript, jQuery 
+--------------------------
+Copyright 2014 Nour Kayali
+  
+-->
+<!DOCTYPE html>
+<!--
+home/splash screen that asks the user to provide username and password and do the login process
+-->
+<html>
+    <head>
+        <title>Welcome to MyTask</title>
+        <meta charset="UTF-8">
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+        <!-- disable zoom-in and zoom-out -->
+        <meta name="viewport" content="height=device-height,width=device-width,initial-scale=1.0,maximum-scale=1.0" >
+        <link rel="stylesheet" href="themes/Nour.min.css" />
+        <link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.2/jquery.mobile.structure-1.4.2.min.css" />
+        <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+        <script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+        <script src='http://malsup.github.io/jquery.blockUI.js'></script>
+        <script src="js/newjavascript.js"></script>
+        <!-- CSS -->
+        <style>
+            input
+            {
+                padding : 10px;
+                border : 2px;
+                font-size :25px;
+                width : 600px
+            }
+            #loginButton {
+                padding : 20px;
+            }
+            h3, p {
+                font-size: 0.90em;
+                color: grey;
+            }
+        </style>
+    </head>
+    <!-- call addUsers function when the page loads -->
+    <body onload="addUsers()">
+        <div data-role="page" data-theme="b">
+            <div data-role="header">
+                <h1 >MyTask</h1>
+            </div>
+            <div data-role="content">
+                <div><input type="text" id="username" placeholder="Enter Username" maxlength="15" data-clear-btn="true">
+                    <!-- JavaScript/jQuery-->
+                    <script>
+                        $(function() {
+                            // enable the login button only when both username and password are entered
+                            $('#loginButton').attr('disabled', true);
+                            $('.ui-content').on('click', '.ui-input-clear', function(e) {
+                                $('#loginButton').attr('disabled', true);
+                            });
+                            $('#username').keyup(function() {
+                                if ($(this).val().length == 0) {
+                                    $('#password').keyup(function() {
+                                        if ($(this).val().length == 0) {
+                                            $('#loginButton').attr('disabled', true);
+                                        }
+                                        else
+                                        {
+                                            $('#loginButton').attr('disabled', false);
+                                        }
+                                    })
+                                }
+                                else
+                                {
+                                    $('#password').keyup(function() {
+                                        if ($(this).val().length == 0) {
+                                            $('#loginButton').attr('disabled', true);
+                                        }
+                                        else
+                                        {
+                                            $('#loginButton').attr('disabled', false);
+                                        }
+                                    })
+                                }
+                            });
+                            $('#password').keyup(function() {
+                                if ($(this).val().length == 0) {
+                                    $('#username').keyup(function() {
+                                        if ($(this).val().length == 0) {
+                                            $('#loginButton').attr('disabled', true);
+                                        }
+                                        else
+                                        {
+                                            $('#loginButton').attr('disabled', false);
+                                        }
+                                    })
+                                }
+                                else
+                                {
+                                    $('#username').keyup(function() {
+                                        if ($(this).val().length == 0) {
+                                            $('#loginButton').attr('disabled', true);
+                                        }
+                                        else
+                                        {
+                                            $('#loginButton').attr('disabled', false);
+                                        }
+                                    })
+                                }
+                            });
+                            // 'enter/return' button handeling
+                            $('#username').keyup(function(event) {
+                                if (event.keyCode == 13) {
+                                    $('#loginButton').click();
+                                    $('#loginButton').focus();
+                                }
+                            });
+                            // 'enter/return' button handeling
+                            $('#password').keyup(function(event) {
+                                if (event.keyCode == 13) {
+                                    $('#loginButton').click();
+                                    $('#loginButton').focus();
+                                }
+                            });
+                        });
+                    </script>
+                    <input type="password" id="password" placeholder="Enter Password" maxlength="15" data-clear-btn="true">
+                </div> 
+                <br/>
+                <button type="submit" id="loginButton" onclick="login()" class="ui-btn ui-shadow ui-corner-all ui-btn-icon-right ui-icon-carat-r">Login</button>
+                <br/>
+                <br/>
+                <br/>
+                <br/>  
+                <br/>
+                <br/>
+                <a href="documentation.pdf" target="_blank" type="application/octet-stream">Documentation</a>
+            </div>
+        </div>
+    </body>
+</html>
